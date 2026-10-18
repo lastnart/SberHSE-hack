@@ -59,19 +59,52 @@
     return perms.length ? perms[0] : list;
   }
 
+  // Порядок гостей сразу во всех волнах: в каждой волне обучающий первым, нигде подряд нет двух гостей с одним именем
+  // на табличке, в том числе на стыке волн. Перебор с возвратом по перестановкам волн (гостей всего около десяти).
+  // Если подходящего порядка нет вообще, расставляем волны по одной, как получится.
+  function arrangeAll(lists) {
+    function good(p, first) {
+      for (var i = 0; i < p.length; i++) {
+        if (i > 0 && p[i].name === p[i - 1].name) return false;
+        if (p[i].tutorial && !(first && i === 0)) return false;
+      }
+      return true;
+    }
+    var perms = lists.map(function (l, i) {
+      return G.shuffle(permutations(l)).filter(function (p) { return good(p, i === 0); });
+    });
+    var chosen = [];
+    function dfs(i, prev) {
+      if (i === lists.length) return true;
+      for (var k = 0; k < perms[i].length; k++) {
+        var p = perms[i][k];
+        if (p.length && prev !== null && p[0].name === prev) continue;
+        chosen[i] = p;
+        if (dfs(i + 1, p.length ? p[p.length - 1].name : prev)) return true;
+      }
+      return false;
+    }
+    if (dfs(0, null)) return chosen;
+    var prev = null;
+    return lists.map(function (l) {
+      var p = arrange(l, prev);
+      if (p.length) prev = p[p.length - 1].name;
+      return p;
+    });
+  }
+
   function buildRun(c) {
     trickById = {};
     c.tricks.forEach(function (t) { trickById[t.id] = t; });
 
-    var prevName = null; // имя последнего гостя предыдущей волны: на стыке волн тоже не повторяемся
-    var waves = c.waves.map(function (w) {
+    var lists = c.waves.map(function (w) {
       var sly = G.shuffle(c.guests.filter(function (g) { return g.kind === 'sly' && g.wave === w.id; }));
       sly.sort(function (a, b) { return (b.tutorial ? 1 : 0) - (a.tutorial ? 1 : 0); }); // обучающий гость всегда попадает
       var fr = G.shuffle(c.guests.filter(function (g) { return g.kind === 'friend' && g.wave === w.id; }));
-      var list = arrange(sly.slice(0, w.pick.sly).concat(fr.slice(0, w.pick.friend)), prevName);
-      if (list.length) prevName = list[list.length - 1].name;
-      return { def: w, list: list };
+      return sly.slice(0, w.pick.sly).concat(fr.slice(0, w.pick.friend));
     });
+    var ordered = arrangeAll(lists);
+    var waves = c.waves.map(function (w, i) { return { def: w, list: ordered[i] }; });
 
     var total = 0;
     waves.forEach(function (w) { total += w.list.length; });
