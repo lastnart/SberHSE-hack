@@ -143,13 +143,10 @@ p { margin: 0; }
 #screen-play { padding: 0; background: #F9DBBC; }
 .scene {
   position: relative; flex: 1 1 auto; min-height: 120px;
-  background: #B3DFFE; /* небо; сама сцена (art/scene-open.svg) вставляется кодом, см. svg.bg ниже */
+  background: #B3DFFE; /* небо; сама сцена (art/scene-open.svg) вставляется кодом и подгоняется fitScene() в game.js */
   overflow: hidden;
 }
-/* Фон: область 84% ширины на всю высоту сцены (боковые 8% закрывают открытые створки). Картинка квадратная (viewBox 440×440,
-   preserveAspectRatio xMidYMax slice): растягивается до большей стороны области, лишнее обрезается сверху или с боков, низ
-   (дорожка, на которой стоит лис) всегда на месте. Размер считает сам браузер, JS не участвует, поэтому ничего не «прыгает». */
-.scene > svg.bg { position: absolute; left: 8%; top: 0; width: 84%; height: 100%; z-index: 0; display: block; }
+.scene > svg.bg { position: absolute; bottom: 0; left: 0; z-index: 0; display: block; }
 #scene .topbar {
   position: absolute; top: 0; left: 0; right: 0; z-index: 6; padding: 12px 16px 0;
   padding-top: max(12px, env(safe-area-inset-top));
