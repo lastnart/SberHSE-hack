@@ -3,6 +3,8 @@
    Шрифты только системные: любой внешний шрифт в проде не загрузится.
    Имена классов .line .ink .face .mask .acc .arm заняты рисунком лиса (art/fox.svg), здесь их не используем. */
 :root {
+  --panel-min: 390px;   /* самая низкая нижняя панель (текст карточки 3 строки, подсказка пустая); фон привязан к её верху */
+  --panel-bottom: max(10px, env(safe-area-inset-bottom));
   --bg: #F2F2F2;
   --pink: #F5C9C8;
   --cream: #F2ECCA;
@@ -143,10 +145,14 @@ p { margin: 0; }
 #screen-play { padding: 0; background: #F9DBBC; }
 .scene {
   position: relative; flex: 1 1 auto; min-height: 120px;
-  background: #B3DFFE; /* небо; сама сцена (art/scene-open.svg) вставляется кодом и подгоняется fitScene() в game.js */
+  z-index: 1; /* поверх фона (svg.bg ниже по тексту), сама прозрачная */
   overflow: hidden;
 }
-.scene > svg.bg { position: absolute; bottom: 0; left: 0; z-index: 0; display: block; }
+/* Фон НЕПОДВИЖЕН: он привязан к высоте всего экрана, а не к сцене, поэтому не меняется, когда нижняя панель растёт
+   (длинный текст, подсказка) или сжимается: панель просто закрывает его снизу. Область: 84% ширины (боковые 8% закрывают
+   открытые створки), высота экрана минус самая низкая панель (--panel-min): при ней виден весь фон до дорожки, при более высокой панель закрывает дорожку, а сам фон не двигается. Картинка 440×664
+   (preserveAspectRatio xMidYMax slice) растягивается до большей стороны области, лишнее обрезается сверху или с боков. */
+#screen-play > svg.bg { position: absolute; left: 8%; top: 0; width: 84%; height: calc(100% - var(--panel-min) - var(--panel-bottom) + 16px); z-index: 0; display: block; }
 #scene .topbar {
   position: absolute; top: 0; left: 0; right: 0; z-index: 6; padding: 12px 16px 0;
   padding-top: max(12px, env(safe-area-inset-top));
@@ -156,8 +162,8 @@ p { margin: 0; }
 .gdefs { position: absolute; }
 .gate { position: absolute; top: 0; bottom: 0; width: 50%; z-index: 4; transition: transform .5s cubic-bezier(.3, 1.1, .4, 1); }
 .gate svg { width: 100%; height: 100%; display: block; }
-.gate.l { left: 0; transform: translateX(-76%); }
-.gate.r { right: 0; transform: translateX(76%); }
+.gate.l { left: 0; transform: translateX(-60%); }
+.gate.r { right: 0; transform: translateX(60%); }
 .gate.r svg { transform: scaleX(-1); }
 .gpost { position: absolute; left: 50%; top: .7%; bottom: 2.2%; width: 8.2%; margin-left: -4.1%; z-index: 5; background: #C48524; border-radius: 3px; opacity: 0; transition: opacity .3s; }
 .scene.closed .gate { transform: none; }
@@ -186,12 +192,13 @@ p { margin: 0; }
 /* ---------- нижняя панель (как в макете): значки, жёлтая карточка, розовая плашка, кнопки ---------- */
 .panel {
   position: relative; z-index: 5; flex: none; margin: -16px 10px 10px;
-  margin-bottom: max(10px, env(safe-area-inset-bottom));
+  margin-bottom: var(--panel-bottom); min-height: var(--panel-min);
   background: #fff; border: 2px solid #EDEDED; border-radius: 28px;
   box-shadow: 0 -2px 14px rgba(60, 40, 10, .12);
   padding: 12px 12px 12px; display: flex; flex-direction: column; gap: 8px;
 }
-.stage { flex: none; }
+.stage { flex: 1 1 auto; display: flex; } /* лишняя высота при минимальной панели достаётся карточке */
+.stage .card { flex: 1; }
 .card {
   position: relative; width: 100%;
   background: #FFF3D6; color: #7A4A00;
@@ -370,6 +377,7 @@ svg.sway                 { transform-origin: 50% 100%; animation: sway 1.6s ease
 .compact .phrases { font-size: 17px; }
 .compact .card { min-height: 104px; }
 .compact .zone, .compact .zones .next { min-height: 46px; }
+.compact { --panel-min: 361px; }
 .compact .panel { padding: 8px 10px 10px; gap: 6px; }
 .compact .sticker { width: 34px; height: 34px; }
 @media (prefers-reduced-motion: reduce) {
