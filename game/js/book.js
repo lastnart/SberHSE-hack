@@ -83,7 +83,9 @@
       document.getElementById('book-res-head').hidden = !list.length; // жители появляются со 2-й волны
       list.forEach(function (r) {
         var facts = r.facts.map(function (f) { return '<li>' + esc(f) + '</li>'; }).join('');
-        var face = (G.art.friends && G.art.friends[r.avatar]) ? '<span class="b-bust">' + G.art.friends[r.avatar] + '</span>' : '<span class="b-emoji">' + r.emoji + '</span>';
+        // иконка-голова от дизайнеров; если её нет, силуэт-заготовка, а если и его нет, эмодзи
+        var art = (G.art.faces && G.art.faces[r.avatar]) || (G.art.friends && G.art.friends[r.avatar]);
+        var face = art ? '<span class="b-bust">' + art + '</span>' : '<span class="b-emoji">' + r.emoji + '</span>';
         var card = document.createElement('div');
         card.className = 'res-card';
         card.innerHTML = face + '<b>' + esc(r.name) + '</b><ul>' + facts + '</ul>';

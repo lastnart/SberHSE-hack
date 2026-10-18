@@ -143,17 +143,15 @@ p { margin: 0; }
 #screen-play { padding: 0; background: #F9DBBC; }
 .scene {
   position: relative; flex: 1 1 auto; min-height: 120px;
-  background:
-    radial-gradient(120% 38% at 30% 104%, #A0CC80 0%, #A0CC80 60%, rgba(160, 204, 128, 0) 61%),
-    radial-gradient(110% 34% at 85% 106%, #7FBF8F 0%, #7FBF8F 60%, rgba(127, 191, 143, 0) 61%),
-    linear-gradient(180deg, #90CFFD 0%, #CAEAFF 35.1%, #CAEAFF 100%);
+  background: #B3DFFE; /* небо; сама сцена (art/scene-open.svg) вставляется кодом и подгоняется fitScene() в game.js */
   overflow: hidden;
 }
+.scene > svg.bg { position: absolute; bottom: 0; left: 0; z-index: 0; display: block; }
 #scene .topbar {
   position: absolute; top: 0; left: 0; right: 0; z-index: 6; padding: 12px 16px 0;
   padding-top: max(12px, env(safe-area-inset-top));
 }
-.dots { padding: 5px 10px; border-radius: 12px; background: rgba(255, 255, 255, .7); flex: 0 1 auto; margin: 0 auto; }
+.dots { padding: 5px 10px; border-radius: 12px; background: rgba(255, 255, 255, .7); flex: 0 1 auto; margin: 0 auto 0 0; }
 /* Створки и столб по CSS дизайнеров (закрытые ворота, холст 440×674): листы #FDD363, вставки #EDB047 и #F9C558, ручка-кольцо, столб #C48524 */
 .gdefs { position: absolute; }
 .gate { position: absolute; top: 0; bottom: 0; width: 50%; z-index: 4; transition: transform .5s cubic-bezier(.3, 1.1, .4, 1); }
@@ -165,7 +163,7 @@ p { margin: 0; }
 .scene.closed .gate { transform: none; }
 .scene.closed .gpost { opacity: 1; transition-delay: .3s; }
 .door {
-  position: absolute; left: 50%; bottom: 0; top: 86px; width: clamp(120px, 46%, 200px); transform: translateX(-50%);
+  position: absolute; left: 50%; bottom: 14px; top: 86px; width: clamp(120px, 46%, 200px); transform: translateX(-50%); /* 14px = нахлёст нижней панели */
   background: transparent; z-index: 1;
 }
 .slot { position: absolute; left: 0; right: 0; bottom: 0; top: 0; display: flex; align-items: flex-end; justify-content: center; }
@@ -326,7 +324,8 @@ p { margin: 0; }
   display: flex; flex-direction: column; align-items: center; text-align: center; gap: 2px; padding: 6px 4px 7px; border-radius: 12px;
   background: var(--purple-soft); border: 2px solid #D9C8FA; font-size: 13px;
 }
-.res-card .b-bust { width: 40px; height: 50px; }
+.res-card .b-bust { width: 46px; height: 46px; }
+.res-card .b-bust svg { max-width: 100%; max-height: 100%; }
 .res-card b { font-size: 14px; }
 .res-card ul { margin: 0; padding: 0; list-style: none; font-weight: 600; font-size: 11.5px; line-height: 1.2; color: #3B3750; }
 .res-card li + li { margin-top: 2px; }
@@ -363,7 +362,7 @@ svg.sway                 { transform-origin: 50% 100%; animation: sway 1.6s ease
 .compact .b-ico, .compact .b-ico .ico, .compact .b-ico svg { width: 20px; height: 20px; }
 .compact .res-grid { gap: 4px; }
 .compact .res-card { padding: 4px 3px 5px; font-size: 12px; gap: 1px; }
-.compact .res-card .b-bust { width: 30px; height: 38px; }
+.compact .res-card .b-bust { width: 34px; height: 34px; }
 .compact .res-card b { font-size: 13px; }
 .compact .res-card ul { font-size: 11px; }
 .compact .sheet.book #book-btn { padding: 9px 20px; font-size: 17px; margin-top: 2px; }

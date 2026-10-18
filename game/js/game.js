@@ -159,7 +159,7 @@
   }
 
   function showStamp(adult) {
-    els.stamp.textContent = adult ? 'ВЗРОСЛОМУ' : 'ПУСКАЮ';
+    els.stamp.textContent = adult ? 'ВЗРОСЛОМУ' : 'ПУСТИТЬ';
     els.stamp.className = 'stamp ' + (adult ? 'no' : 'yes');
     void els.stamp.offsetWidth;
     els.stamp.classList.add('show');
@@ -185,7 +185,21 @@
     });
   }
 
+  // Сцена (холст 440×440 после кадрирования) подгоняется под высоту окна игры: по высоте, но не уже 84% ширины,
+  // боковые зазоры закрывают открытые створки. Замок и луг всегда целиком, лис стоит внизу на тропинке.
+  function fitScene() {
+    var bg = els.scene.querySelector('svg.bg');
+    if (!bg) return;
+    var w = els.scene.offsetWidth, h = els.scene.offsetHeight; // без учёта поворота интерфейса
+    if (!w || !h) return;
+    var size = Math.round(Math.max(h, w * 0.84));
+    bg.style.width = size + 'px';
+    bg.style.height = size + 'px';
+    bg.style.left = Math.round((w - size) / 2) + 'px';
+  }
+
   function renderGuest() {
+    fitScene();
     var g = S.current;
     S.guestFound = {};
     els.plate.textContent = g.name;
@@ -441,6 +455,9 @@
   /* ---------- экраны ---------- */
 
   function bind() {
+    if (G.art.scene) els.scene.insertAdjacentHTML('afterbegin', G.art.scene); // фон за лисом
+    window.addEventListener('resize', fitScene);
+    window.addEventListener('orientationchange', function () { setTimeout(fitScene, 80); });
     swiper = G.input.swipeCard(els.card, {
       onMove: function (dx) {
         els.btnYes.classList.toggle('hot', dx > 40);
@@ -464,6 +481,7 @@
       S = buildRun(G.content.data);
       stickerRow(els.stickers, S.found);
       renderDots();
+      fitScene();
       startWave(0);
     }
   });

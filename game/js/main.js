@@ -41,8 +41,6 @@
     G.$('#btn-again').addEventListener('click', function () { G.audio.sfx('tap'); G.screens.go('play'); });
     G.$('#btn-share').addEventListener('click', function () { G.shareResult(); });
     G.$('#btn-exit').addEventListener('click', function () { G.bridge.close(); });
-    G.$('#btn-close').addEventListener('click', function () { G.bridge.close(); });
-    G.$('#btn-close-play').addEventListener('click', function () { G.bridge.close(); });
     G.$$('[data-sound-btn]').forEach(function (b) { b.addEventListener('click', G.audio.toggle); });
   }
 
