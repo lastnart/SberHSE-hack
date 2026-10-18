@@ -51,6 +51,19 @@
       var image = null;
       try { if (draw) image = G.share.card(draw); } catch (e) { G.log('[share] card failed', e); }
       G.bridge.share({ text: text, image: image });
+    },
+
+    // То же, но рисование может быть асинхронным (например, загрузка картинки с лисом).
+    // draw(ctx, w, h) возвращает Promise или ничего. Формат JPEG: плакат с градиентом получается заметно легче PNG.
+    sendAsync: function (text, draw) {
+      var c = document.createElement('canvas');
+      c.width = 720; c.height = 960;
+      var ctx = c.getContext('2d');
+      return Promise.resolve()
+        .then(function () { return draw(ctx, c.width, c.height); })
+        .then(function () { return c.toDataURL('image/jpeg', 0.88); })
+        .catch(function (e) { G.log('[share] poster failed', e); return null; })
+        .then(function (image) { G.bridge.share({ text: text, image: image }); });
     }
   };
 })(window.G);

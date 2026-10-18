@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Лис Хитрик: позы, предметы, гэги</title>
+<!-- Страница для дизайнеров и разработчиков. Показывает, как рисунки из art/ собираются в игре.
+     Перед открытием: python3 tools/import_art.py && python3 tools/build_art.py (собирают ../js/art.js). -->
+<style>
+  :root { --ink:#16131F; --lime:#D1F43A; --purple:#7B3FD6; }
+  * { box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+  body { margin:0; background:#F2F2F2; color:var(--ink); font:15px/1.3 system-ui,-apple-system,Roboto,sans-serif; display:flex; flex-direction:column; align-items:center; padding:12px 12px 32px; }
+  h1 { font-size:20px; margin:6px 0 2px; }
+  .hint { font-size:13px; opacity:.7; max-width:520px; text-align:center; }
+  #scene { width:min(78vw,300px); height:min(70vw,300px); margin:12px 0 4px; border:3px solid var(--ink); border-radius:20px; overflow:hidden; position:relative;
+           background:linear-gradient(180deg,#B79CF5,#F2B8D8 58%,#FFE3A8); }
+  #door { position:absolute; left:50%; bottom:0; top:20px; width:62%; transform:translateX(-50%); border:4px solid var(--ink); border-bottom:0; border-radius:90px 90px 0 0;
+          background:radial-gradient(90% 70% at 50% 40%,#8C57E8,#5A2BB0 65%,#351673); overflow:hidden; }
+  #slot { position:absolute; inset:4px 0 0 0; display:flex; align-items:flex-end; justify-content:center; }
+  #slot svg { height:100%; width:auto; display:block; }
+  #bubble { position:absolute; top:8px; right:8px; max-width:55%; background:#fff; border:2px solid var(--ink); border-radius:12px 12px 4px 12px; padding:6px 10px; font-weight:800; font-size:13px; opacity:0; transition:opacity .15s; }
+  #bubble.show { opacity:1; }
+  .panel { width:min(94vw,560px); display:flex; flex-wrap:wrap; gap:8px; justify-content:center; margin:6px 0; }
+  .panel h3 { flex:0 0 100%; margin:8px 0 0; font-size:12px; opacity:.6; text-transform:uppercase; letter-spacing:.07em; text-align:center; }
+  button { font:inherit; font-weight:800; padding:9px 13px; border-radius:14px; border:3px solid var(--ink); background:#fff; color:var(--ink); box-shadow:0 3px 0 var(--ink); cursor:pointer; }
+  button:active { transform:translateY(3px); box-shadow:none; }
+  button.on { background:var(--lime); }
+  button.gag { background:var(--purple); color:#fff; }
+</style>
+</head>
+<body>
+<h1>Лис Хитрик</h1>
+<div class="hint">Позы, предметы и гэги ровно такие, как в игре. Рисунки берутся из <code>art/лис</code>, <code>art/костюмы_и_аксессурары</code> и <code>art/friends</code> после запуска <code>tools/import_art.py</code>.</div>
+
+<div id="scene"><div id="door"><div id="slot"></div></div><div id="bubble"></div></div>
+
+<div class="panel" id="p-pose"><h3>Позы (смысл от дизайнеров)</h3></div>
+<div class="panel" id="p-items"><h3>Что надето (сомбреро, маска, усы, бантик, костюм овечки)</h3></div>
+<div class="panel" id="p-other"><h3>Тень и друзья</h3></div>
+<div class="panel" id="p-gags"><h3>Гэги</h3></div>
+
+<script src="../js/art.js"></script>
+<script src="../js/fox.js"></script>
+<script>
+(function () {
+  'use strict';
+  var slot = document.getElementById('slot'), bubble = document.getElementById('bubble');
+  var st = { pose: 'default', items: {} };
+  var POSES = [['default', 'По умолчанию'], ['confused', 'Недоумение'], ['indignant', 'Негодование'], ['surrender', 'Разоблачён, сдаётся'], ['trick', 'Обхитрил']];
+  var ITEMS = [['sombrero', 'Сомбреро'], ['mask', 'Маска'], ['mustache', 'Усы'], ['bow', 'Бантик'], ['sheep', 'Овечка']];
+  var FRIENDS = [['babushka', 'Бабушка'], ['mama', 'Мама'], ['dima', 'Дима'], ['teacher', 'Учитель'], ['brother', 'Брат']];
+  function sleep(ms) { return new Promise(function (r) { setTimeout(r, ms); }); }
+  function say(t, ms) { bubble.textContent = t; bubble.classList.add('show'); return sleep(ms || 1500).then(function () { bubble.classList.remove('show'); }); }
+  function worn() { var l = Object.keys(st.items).filter(function (k) { return st.items[k]; }); return { items: l.filter(function (k) { return k !== 'sheep'; }), sheep: l.indexOf('sheep') >= 0 }; }
+  function draw() { var w = worn(); G.fox.mount(slot, { pose: st.pose, items: w.items, sheep: w.sheep }); mark(); }
+  function mark() {
+    document.querySelectorAll('[data-pose]').forEach(function (b) { b.classList.toggle('on', b.dataset.pose === st.pose); });
+    document.querySelectorAll('[data-item]').forEach(function (b) { b.classList.toggle('on', !!st.items[b.dataset.item]); });
+  }
+  function btn(panel, label, attrs, fn, cls) {
+    var b = document.createElement('button'); b.textContent = label; Object.keys(attrs || {}).forEach(function (k) { b.dataset[k] = attrs[k]; });
+    if (cls) b.className = cls; b.addEventListener('click', fn); document.getElementById(panel).appendChild(b); return b;
+  }
+  POSES.forEach(function (p) { btn('p-pose', p[1], { pose: p[0] }, function () { st.pose = p[0]; draw(); }); });
+  ITEMS.forEach(function (i) { btn('p-items', i[1], { item: i[0] }, function () { st.items[i[0]] = !st.items[i[0]]; if (i[0] === 'sheep' && st.items.sheep) st.pose = 'default'; draw(); }); });
+  btn('p-other', 'Тень с «?»', null, function () { G.fox.shadow(slot); });
+  FRIENDS.forEach(function (f) { btn('p-other', f[1], null, function () { G.fox.friend(slot, f[0]); }); });
+
+  // Гэг 1: разоблачение. Что надето, слетает, лис «сдаётся».
+  function gagUnmask() {
+    var w = worn(); if (!w.items.length && !w.sheep) { st.items.mask = true; st.items.mustache = true; w = worn(); }
+    st.pose = 'default'; draw();
+    return sleep(450).then(function () { return G.fox.unmask(slot); }).then(function () { st.pose = 'surrender'; st.items = {}; mark(); return say('Мои усы были настоящие!', 1600); });
+  }
+  // Гэг 2: побег обиженный, на полпути оглядывается.
+  function gagRun() { G.fox.mount(slot, { pose: 'surrender' }); return sleep(500).then(function () { return G.fox.runAway(slot); }); }
+  // Гэг 3: обхитрил.
+  function gagTrick() { st.pose = 'trick'; st.items = {}; draw(); return say('Мороженое не отдам.', 1500); }
+  btn('p-gags', 'Разоблачение', null, gagUnmask, 'gag');
+  btn('p-gags', 'Побег', null, gagRun, 'gag');
+  btn('p-gags', 'Обхитрил', null, gagTrick, 'gag');
+  btn('p-gags', 'Всё подряд', null, function () {
+    st.items = { sombrero: true, mustache: true }; return gagUnmask().then(function () { return gagRun(); }).then(function () { return sleep(500); }).then(function () { G.fox.shadow(slot); });
+  }, 'gag');
+
+  G.fox.shadow(slot); mark();
+})();
+</script>
+</body>
+</html>

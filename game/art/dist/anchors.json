@@ -1,0 +1,32 @@
+{
+ "sombrero": {
+  "art": "sombrero-tilt",
+  "x": 13.31,
+  "y": -6.69,
+  "s": 0.973
+ },
+ "mask": {
+  "art": "mask",
+  "x": 4.35,
+  "y": 17.48,
+  "s": 0.95
+ },
+ "bow": {
+  "art": "bow-tilt",
+  "x": 18.8,
+  "y": 8.8,
+  "s": 0.92
+ },
+ "mustache": {
+  "art": "mustache",
+  "x": 24.04,
+  "y": 44.58,
+  "s": 0.616
+ },
+ "sheep": {
+  "art": "costume-sheep",
+  "x": 3,
+  "y": 0,
+  "s": 1
+ }
+}

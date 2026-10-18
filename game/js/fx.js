@@ -4,11 +4,12 @@
   'use strict';
 
   var canvas = null, ctx = null, particles = [], dpr = 1, w = 0, h = 0, loop = null;
-  var COLORS = ['#FFD84D', '#FF6B5A', '#5CE0B8', '#FFFFFF', '#8FA2FF'];
+  var COLORS = ['#D1F43A', '#7B3FD6', '#FFE45C', '#FFB3D1', '#3EA8F6'];
 
   function resize() {
     dpr = Math.min(window.devicePixelRatio || 1, 2); // выше 2 на слабых телефонах лишнее
-    w = window.innerWidth; h = window.innerHeight;
+    var root = document.getElementById('rot');
+    w = root.clientWidth || window.innerWidth; h = root.clientHeight || window.innerHeight; // размеры вёрстки, не окна
     canvas.width = Math.round(w * dpr);
     canvas.height = Math.round(h * dpr);
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
@@ -54,6 +55,11 @@
   }
 
   G.fx = {
+    size: function () {
+      var root = document.getElementById('rot');
+      return { w: root.clientWidth || window.innerWidth, h: root.clientHeight || window.innerHeight };
+    },
+
     // Конфетти из точки (x, y); по умолчанию снизу по центру. count держим скромным ради 60 fps.
     confetti: function (opts) {
       if (!init()) return;

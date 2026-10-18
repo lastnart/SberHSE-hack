@@ -1,8 +1,8 @@
-/* Единый ввод на Pointer Events: перетаскивание и свайп-карточка. */
+/* Единый ввод на Pointer Events: перетаскивание, тап и свайп-карточка. */
 (function (G) {
   'use strict';
 
-  // Перетаскивание элемента. handlers: onStart(x, y), onMove(dx, dy, x, y), onEnd(dx, dy).
+  // Перетаскивание элемента. handlers: onStart(x, y), onMove(dx, dy, x, y), onEnd(dx, dy, x, y).
   function drag(el, handlers) {
     var id = null, sx = 0, sy = 0, dx = 0, dy = 0;
 
@@ -14,13 +14,14 @@
     }
     function move(e) {
       if (e.pointerId !== id) return;
-      dx = e.clientX - sx; dy = e.clientY - sy;
+      var l = G.rot.toLocal(e.clientX - sx, e.clientY - sy); // с учётом контр-поворота
+      dx = l.x; dy = l.y;
       if (handlers.onMove) handlers.onMove(dx, dy, e.clientX, e.clientY);
     }
     function up(e) {
       if (e.pointerId !== id) return;
       id = null;
-      if (handlers.onEnd) handlers.onEnd(dx, dy);
+      if (handlers.onEnd) handlers.onEnd(dx, dy, e.clientX, e.clientY);
     }
 
     el.addEventListener('pointerdown', down);
@@ -38,44 +39,43 @@
     };
   }
 
-  // Карточка, которую тянут влево/вправо. opts: threshold, onMove(dx), onSwipe(dir) где dir = -1 | 1.
+  // Карточка, которую тянут влево/вправо. Отпустили далеко: карточка возвращается на место,
+  // а решение приходит сразу в onSwipe(dir), где dir = -1 | 1 (карточка нужна на экране для разбора).
+  // Короткое касание без сдвига: onTap(element, x, y) с элементом под пальцем (даже при захвате указателя).
+  // opts: threshold, onMove(dx), onSwipe(dir), onTap(el).
   function swipeCard(el, opts) {
     var threshold = opts.threshold || 90;
-    var busy = false;
+    var TAP = 14; // палец на экране дрожит, меньший порог превращал тапы в «ничего»
+    var enabled = true;
 
     function put(x, rot, animate) {
       el.style.transition = animate ? 'transform .22s ease-out' : 'none';
       el.style.transform = 'translateX(' + x + 'px) rotate(' + rot + 'deg)';
     }
 
-    function fling(dir) {
-      if (busy) return;
-      busy = true;
-      put(dir * window.innerWidth * 1.1, dir * 24, true);
-      setTimeout(function () { busy = false; opts.onSwipe(dir); }, 200);
-    }
-
     var d = drag(el, {
-      onStart: function () { if (!busy) put(0, 0, false); },
+      onStart: function () { if (enabled) put(0, 0, false); },
       onMove: function (dx) {
-        if (busy) return;
-        put(dx, dx / 18, false);
+        if (!enabled) return;
+        put(dx, dx / 22, false);
         if (opts.onMove) opts.onMove(dx);
       },
-      onEnd: function (dx) {
-        if (busy) return;
-        if (Math.abs(dx) >= threshold) {
-          fling(dx > 0 ? 1 : -1);
-        } else {
-          put(0, 0, true);
-          if (opts.onMove) opts.onMove(0);
+      onEnd: function (dx, dy, x, y) {
+        if (!enabled) return;
+        put(0, 0, true);
+        if (opts.onMove) opts.onMove(0);
+        if (Math.abs(dx) < TAP && Math.abs(dy) < TAP) {
+          if (opts.onTap) opts.onTap(document.elementFromPoint(x, y), x, y);
+          return;
         }
+        if (Math.abs(dx) >= threshold && opts.onSwipe) opts.onSwipe(dx > 0 ? 1 : -1);
       }
     });
 
     return {
-      fling: fling, // то же самое по кнопке
-      reset: function () { busy = false; put(0, 0, false); if (opts.onMove) opts.onMove(0); },
+      trigger: function (dir) { if (enabled && opts.onSwipe) opts.onSwipe(dir); }, // то же самое по кнопке
+      enable: function (v) { enabled = v !== false; if (!enabled) { put(0, 0, true); if (opts.onMove) opts.onMove(0); } },
+      reset: function () { put(0, 0, false); },
       destroy: d.destroy
     };
   }

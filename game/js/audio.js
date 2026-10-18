@@ -37,6 +37,7 @@
 
   var presets = {
     tap: function () { tone(520, 0.06, 'triangle', 0.1); },
+    type: function () { tone(900, 0.022, 'square', 0.025); },
     ok: function () { tone(523, 0.1, 'triangle', 0.16); tone(784, 0.16, 'triangle', 0.16, 0.09); },
     // Мягкий «плюх» вместо резкого сигнала ошибки.
     bad: function () { tone(300, 0.22, 'sine', 0.16, 0, 160); },

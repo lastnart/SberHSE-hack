@@ -1,0 +1,152 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Лис: демо поз и движений</title>
+<!-- Страница для дизайнеров и разработчиков: как Лис двигается кодом, без покадровых анимаций.
+     Перед открытием: python3 tools/build_art.py  (собирает ../js/art.js из art/fox.svg) -->
+<style>
+  :root { --ink:#0D0F2B; --yellow:#FFD84D; --mint:#5CE0B8; --coral:#FF6B5A; }
+  * { box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+  body { margin:0; background:#1B1F4B; color:#fff; font:16px/1.3 system-ui,-apple-system,Roboto,sans-serif;
+         display:flex; flex-direction:column; align-items:center; min-height:100vh; }
+  #stage { width:min(86vw,340px); margin:12px auto 0; position:relative; background:radial-gradient(120% 90% at 50% 0%,#272C66,#1B1F4B);
+           border-radius:22px; padding:8px 8px 0; }
+  #stage > svg { width:100%; height:auto; display:block; }
+  #bubble { position:absolute; left:50%; top:-6px; transform:translateX(-50%) scale(.6); opacity:0; background:#fff; color:var(--ink);
+            border:3px solid var(--ink); border-radius:16px; padding:8px 14px; font-weight:800; white-space:nowrap; pointer-events:none;
+            transition:transform .2s cubic-bezier(.2,1.6,.4,1), opacity .15s; }
+  #bubble.show { transform:translateX(-50%) scale(1); opacity:1; }
+  .panel { width:min(94vw,640px); margin:12px 0; display:flex; flex-wrap:wrap; gap:8px; justify-content:center; }
+  .panel h3 { flex:0 0 100%; margin:6px 0 0; font-size:13px; opacity:.7; font-weight:700; text-transform:uppercase; letter-spacing:.06em; text-align:center; }
+  button { font:inherit; font-weight:800; padding:10px 14px; border-radius:14px; border:3px solid var(--ink); background:var(--yellow); color:var(--ink);
+           box-shadow:0 3px 0 var(--ink); cursor:pointer; }
+  button:active { transform:translateY(3px); box-shadow:none; }
+  button.on { background:var(--mint); }
+  button.gag { background:var(--coral); }
+
+  /* ---- движение кодом (CSS-анимации поверх одной картинки) ---- */
+  svg.alive #fox-tail     { transform-origin:190px 300px; animation:wag 1.1s ease-in-out infinite alternate; }
+  svg.alive #fox-headgroup{ transform-origin:150px 240px; animation:nod 2.6s ease-in-out infinite; }
+  svg.alive               { transform-origin:50% 100%; animation:breathe 2.2s ease-in-out infinite; }
+  svg.bounce              { transform-origin:50% 100%; animation:bounce .8s cubic-bezier(.3,0,.3,1) infinite !important; }
+  svg.sway                { transform-origin:50% 100%; animation:sway 1.6s ease-in-out infinite alternate !important; }
+  @keyframes wag     { from { transform:rotate(-7deg); } to { transform:rotate(9deg); } }
+  @keyframes nod     { 0%,100% { transform:rotate(0); } 30% { transform:rotate(-3deg); } 70% { transform:rotate(3deg); } }
+  @keyframes breathe { 0%,100% { transform:scale(1,1); } 50% { transform:scale(1.015,.985); } }
+  @keyframes bounce  { 0%,100% { transform:translateY(0) scale(1.06,.92); } 50% { transform:translateY(-26px) scale(.95,1.06); } }
+  @keyframes sway    { from { transform:rotate(-4deg); } to { transform:rotate(4deg); } }
+</style>
+</head>
+<body>
+
+<div id="stage"><div id="bubble"></div></div>
+
+<div class="panel" id="p-pose"><h3>Позы</h3></div>
+<div class="panel" id="p-mask"><h3>Маски</h3></div>
+<div class="panel" id="p-tr"><h3>Трофеи</h3></div>
+<div class="panel" id="p-anim"><h3>Движение кодом</h3></div>
+<div class="panel" id="p-gag"><h3>Гэги из поз и движений</h3></div>
+
+<script src="../js/art.js"></script>
+<script>
+(function () {
+  'use strict';
+  var stage = document.getElementById('stage');
+  stage.insertAdjacentHTML('afterbegin', G.art.fox);
+  var fox = stage.querySelector('svg');
+  var bubble = document.getElementById('bubble');
+  var st = { pose: 'p-masked', mask: 'm-cap', tr: {} };
+
+  function sleep(ms) { return new Promise(function (r) { setTimeout(r, ms); }); }
+
+  function render() {
+    var cls = [st.pose, st.mask];
+    Object.keys(st.tr).forEach(function (k) { if (st.tr[k]) cls.push(k); });
+    fox.setAttribute('class', cls.concat(fox.dataset.anim || '').join(' ').trim());
+    document.querySelectorAll('[data-g]').forEach(function (b) {
+      var g = b.dataset.g, v = b.dataset.v;
+      var on = g === 'pose' ? st.pose === v : g === 'mask' ? st.mask === v : g === 'tr' ? !!st.tr[v] : (fox.dataset.anim || '') === v;
+      b.classList.toggle('on', !!on);
+    });
+  }
+
+  function say(text, ms) {
+    bubble.textContent = text; bubble.classList.add('show');
+    return sleep(ms || 1600).then(function () { bubble.classList.remove('show'); });
+  }
+
+  function btn(panel, label, attrs, onclick) {
+    var b = document.createElement('button');
+    b.textContent = label;
+    Object.keys(attrs || {}).forEach(function (k) { b.dataset[k] = attrs[k]; });
+    b.addEventListener('click', onclick);
+    document.getElementById(panel).appendChild(b);
+    return b;
+  }
+
+  [['p-masked', 'В маске'], ['p-caught', 'Попался'], ['p-naughty', 'Шалит'], ['p-pose', 'Позирует'], ['p-greet', 'Заставка']].forEach(function (p) {
+    btn('p-pose', p[1], { g: 'pose', v: p[0] }, function () { st.pose = p[0]; render(); });
+  });
+  [['m-cap', 'Кепка и усы'], ['m-hood', 'Капюшон'], ['m-suit', 'Пиджак'], ['', 'Без маски']].forEach(function (m) {
+    btn('p-mask', m[1], { g: 'mask', v: m[0] }, function () { st.mask = m[0]; render(); });
+  });
+  [['tr-hat', 'Шляпа'], ['tr-glasses', 'Очки'], ['tr-nose', 'Нос'], ['tr-mustache', 'Усы'], ['tr-bow', 'Бабочка']].forEach(function (t) {
+    btn('p-tr', t[1], { g: 'tr', v: t[0] }, function () { st.tr[t[0]] = !st.tr[t[0]]; render(); });
+  });
+  [['alive', 'Дышит, виляет хвостом'], ['bounce', 'Подпрыгивает'], ['sway', 'Покачивается']].forEach(function (a) {
+    btn('p-anim', a[1], { g: 'anim', v: a[0] }, function () {
+      fox.dataset.anim = fox.dataset.anim === a[0] ? '' : a[0]; render();
+    });
+  });
+
+  /* Гэг 1. Поймали Лиса: маска слетает (движение маски кодом), затем поза «Попался». */
+  function gagCaught() {
+    st.pose = 'p-masked'; if (!st.mask) st.mask = 'm-cap'; st.tr = {}; render();
+    var mask = fox.querySelector('#mask-' + st.mask.slice(2));
+    mask.style.transformOrigin = '150px 150px';
+    var fly = mask.animate([
+      { transform: 'translate(0,0) rotate(0)', opacity: 1 },
+      { transform: 'translate(50px,-80px) rotate(35deg)', opacity: 1, offset: .45 },
+      { transform: 'translate(120px,130px) rotate(130deg)', opacity: 0 }
+    ], { duration: 900, easing: 'ease-in', fill: 'forwards' });
+    return fly.finished.then(function () {
+      fly.cancel();
+      st.mask = ''; st.pose = 'p-caught'; render();
+      var head = fox.querySelector('#fox-headgroup');
+      head.style.transformOrigin = '150px 240px';
+      head.animate([{ transform: 'rotate(0)' }, { transform: 'rotate(-6deg)' }, { transform: 'rotate(6deg)' },
+                    { transform: 'rotate(-4deg)' }, { transform: 'rotate(0)' }], { duration: 420 });
+      return say('Мои усы были настоящие!', 1800);
+    });
+  }
+
+  /* Гэг 2. Пропустили Лиса: появляется «Шалит» с мороженым. Короче и мягче, чтобы не хотелось ошибаться нарочно. */
+  function gagNaughty() {
+    st.pose = 'p-naughty'; st.mask = ''; st.tr = {}; render();
+    fox.animate([{ transform: 'scale(.9)' }, { transform: 'scale(1.05)' }, { transform: 'scale(1)' }],
+                { duration: 280, easing: 'ease-out' });
+    return say('Мороженое не отдам.', 1400);
+  }
+
+  /* Гэг 3. Финал: Лис в собранных трофеях покачивается. */
+  function gagFinale() {
+    st.pose = 'p-pose'; st.mask = ''; st.tr = { 'tr-hat': 1, 'tr-glasses': 1, 'tr-nose': 1, 'tr-mustache': 1, 'tr-bow': 1 };
+    fox.dataset.anim = 'sway'; render();
+    return say('Хм. Ты внимательный.', 2000);
+  }
+
+  btn('p-gag', 'Поймали Лиса', null, gagCaught).classList.add('gag');
+  btn('p-gag', 'Пропустили Лиса', null, gagNaughty).classList.add('gag');
+  btn('p-gag', 'Финал в трофеях', null, gagFinale).classList.add('gag');
+
+  render();
+
+  // Автозапуск для проверки: demo.html?gag=caught|naughty|finale
+  var q = /[?&]gag=(\w+)/.exec(location.search);
+  if (q) ({ caught: gagCaught, naughty: gagNaughty, finale: gagFinale })[q[1]]();
+})();
+</script>
+</body>
+</html>

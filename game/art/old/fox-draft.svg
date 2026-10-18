@@ -1,0 +1,206 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 360" width="300" height="360" class="p-masked m-cap">
+<!--
+  Лис Хитрик. Один рисунок, слои переключаются классами на корневом <svg>:
+    позы:   p-masked | p-caught | p-naughty | p-pose | p-greet
+    маски:  m-cap | m-hood | m-suit  (нет класса = без маски)
+    трофеи: tr-hat tr-glasses tr-nose tr-mustache tr-bow
+  Руки вращаются вокруг плеч: переменные al и ar (угол).
+  Для движения кодом есть отдельные группы: #fox-tail (хвост), #fox-headgroup (голова целиком:
+  уши, лицо, маска, головные трофеи), #arm-l и #arm-r.
+-->
+<defs>
+  <linearGradient id="gOrange" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0" stop-color="#FFA951"/>
+    <stop offset="1" stop-color="#F4742A"/>
+  </linearGradient>
+  <linearGradient id="gCream" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0" stop-color="#FFF3E0"/>
+    <stop offset="1" stop-color="#FFE0BC"/>
+  </linearGradient>
+  <path id="headShape" d="M150 98 C200 98 242 124 250 168 L266 186 L246 194 L258 212 L232 214 C214 238 184 248 150 248 C116 248 86 238 68 214 L42 212 L54 194 L34 186 L50 168 C58 124 100 98 150 98 Z"/>
+  <clipPath id="headClip"><use href="#headShape"/></clipPath>
+  <path id="tailShape" d="M188 306 C240 322 296 286 288 226 C285 202 268 188 254 196 C266 228 244 270 190 278 Z"/>
+  <clipPath id="tailClip"><use href="#tailShape"/></clipPath>
+  <path id="earShape" d="M200 114 C212 72 232 44 254 32 C266 62 264 102 246 138 Z"/>
+  <path id="earInner" d="M214 114 C222 86 236 64 250 54 C254 78 252 102 241 126 Z"/>
+  <path id="bowTie" d="M0 0 L-22 -10 L-22 10 Z M0 0 L22 -10 L22 10 Z"/>
+  <style>
+    .line { stroke:#3B1C16; stroke-width:3; stroke-linejoin:round; stroke-linecap:round; }
+    .ink  { fill:#2B1B2E; }
+    .face, .mask, .acc, #icecream { display:none; }
+
+    .arm { transform-origin:0 0; }
+    #arm-l { transform:rotate(var(--al, 0deg)); }
+    #arm-r { transform:rotate(var(--ar, 0deg)); }
+
+    .p-masked { --al:24deg;  --ar:-34deg; }
+    .p-caught { --al:138deg; --ar:-138deg; }
+    .p-naughty{ --al:8deg;   --ar:-102deg; }
+    .p-pose   { --al:128deg; --ar:-128deg; }
+    .p-greet  { --al:140deg; --ar:-8deg; }
+
+    .p-masked  .f-smug   { display:inline; }
+    .p-caught  .f-caught { display:inline; }
+    .p-naughty .f-naughty{ display:inline; }
+    .p-pose    .f-happy, .p-greet .f-happy { display:inline; }
+    .p-naughty #icecream { display:inline; }
+
+    .m-cap  #mask-cap  { display:inline; }
+    .m-hood #mask-hood { display:inline; }
+    .m-suit #mask-suit { display:inline; }
+
+    .tr-hat      #acc-hat      { display:inline; }
+    .tr-glasses  #acc-glasses  { display:inline; }
+    .tr-nose     #acc-nose     { display:inline; }
+    .tr-mustache #acc-mustache { display:inline; }
+    .tr-bow      #acc-bow      { display:inline; }
+  </style>
+</defs>
+
+<!-- хвост -->
+<g id="fox-tail">
+  <use href="#tailShape" fill="url(#gOrange)" class="line"/>
+  <g clip-path="url(#tailClip)"><circle cx="274" cy="206" r="30" fill="url(#gCream)"/></g>
+  <use href="#tailShape" fill="none" class="line"/>
+</g>
+
+<!-- тело и лапы -->
+<g id="fox-body">
+  <ellipse cx="128" cy="326" rx="23" ry="12" fill="#4A2630" class="line"/>
+  <ellipse cx="172" cy="326" rx="23" ry="12" fill="#4A2630" class="line"/>
+  <path d="M112 232 C92 262 94 300 114 318 C130 328 170 328 186 318 C206 300 208 262 188 232 Z" fill="url(#gOrange)" class="line"/>
+  <ellipse cx="150" cy="284" rx="31" ry="35" fill="url(#gCream)"/>
+</g>
+
+<!-- маска-пиджак (на теле) -->
+<g id="mask-suit" class="mask">
+  <path d="M100 238 C82 270 88 308 112 322 L188 322 C212 308 218 270 200 238 L166 290 L150 254 L134 290 Z" fill="#2F3A8F" class="line"/>
+  <path d="M134 250 L166 250 L150 302 Z" fill="#FFFFFF" class="line"/>
+  <g transform="translate(150 250)"><use href="#bowTie" fill="#FF6B5A" class="line"/><circle r="5" fill="#C84434" class="line"/></g>
+</g>
+
+<!-- голова целиком: уши, лицо, маска, головные трофеи (вращается вокруг шеи) -->
+<g id="fox-headgroup">
+
+  <g id="fox-ear-r">
+    <use href="#earShape" fill="url(#gOrange)" class="line"/>
+    <use href="#earInner" fill="#4A2630"/>
+  </g>
+  <g id="fox-ear-l" transform="rotate(-30 100 128)"><!-- согнутое ухо: фирменная черта -->
+    <g transform="translate(300 0) scale(-1 1)">
+      <use href="#earShape" fill="url(#gOrange)" class="line"/>
+      <use href="#earInner" fill="#4A2630"/>
+    </g>
+  </g>
+
+  <g id="fox-head">
+    <use href="#headShape" fill="url(#gOrange)"/>
+    <g clip-path="url(#headClip)">
+      <path d="M20 190 C70 166 120 198 150 200 C180 198 230 166 280 190 L280 270 L20 270 Z" fill="url(#gCream)"/>
+    </g>
+    <use href="#headShape" fill="none" class="line"/>
+    <!-- нос -->
+    <path d="M139 188 Q150 180 161 188 Q156 200 150 201 Q144 200 139 188 Z" class="ink"/>
+    <ellipse cx="146" cy="188" rx="3" ry="1.6" fill="#fff" opacity=".6"/>
+
+    <!-- лица -->
+    <g class="face f-smug">
+      <path d="M104 175 H132 A14 14 0 0 1 104 175 Z" class="ink"/>
+      <path d="M168 175 H196 A14 14 0 0 1 168 175 Z" class="ink"/>
+      <path d="M102 175 H134 M166 175 H198" class="line" fill="none" style="stroke:#2B1B2E;stroke-width:4"/>
+      <circle cx="124" cy="181" r="3" fill="#fff"/><circle cx="188" cy="181" r="3" fill="#fff"/>
+      <path d="M102 158 Q116 150 134 158 M166 150 Q182 140 198 150" class="line" fill="none" style="stroke:#2B1B2E;stroke-width:4"/>
+      <path d="M130 207 Q152 220 178 203 M178 203 l6 -4" class="line" fill="none" style="stroke:#2B1B2E"/>
+    </g>
+    <g class="face f-caught">
+      <ellipse cx="118" cy="170" rx="14" ry="17" fill="#fff" class="line"/>
+      <ellipse cx="182" cy="170" rx="14" ry="17" fill="#fff" class="line"/>
+      <circle cx="118" cy="173" r="7" class="ink"/><circle cx="182" cy="173" r="7" class="ink"/>
+      <circle cx="120" cy="170" r="2.5" fill="#fff"/><circle cx="184" cy="170" r="2.5" fill="#fff"/>
+      <ellipse cx="90" cy="198" rx="15" ry="8" fill="#FF6F86" opacity=".8"/>
+      <ellipse cx="210" cy="198" rx="15" ry="8" fill="#FF6F86" opacity=".8"/>
+      <path d="M130 216 q6.7 -8 13.3 0 t13.3 0 t13.3 0" class="line" fill="none" style="stroke:#2B1B2E"/>
+      <path d="M226 116 Q237 136 226 144 Q215 136 226 116 Z" fill="#8FD8FF" class="line"/>
+    </g>
+    <g class="face f-naughty">
+      <path d="M104 178 Q118 160 132 178 M168 178 Q182 160 196 178" class="line" fill="none" style="stroke:#2B1B2E;stroke-width:5"/>
+      <ellipse cx="92" cy="198" rx="13" ry="7" fill="#FF8FA0" opacity=".6"/>
+      <ellipse cx="208" cy="198" rx="13" ry="7" fill="#FF8FA0" opacity=".6"/>
+      <path d="M124 205 Q150 208 176 205 Q172 236 150 236 Q128 236 124 205 Z" fill="#5A1F2A" class="line"/>
+      <ellipse cx="150" cy="227" rx="13" ry="7" fill="#FF8FA0"/>
+    </g>
+    <g class="face f-happy">
+      <ellipse cx="118" cy="172" rx="11" ry="15" class="ink"/><ellipse cx="182" cy="172" rx="11" ry="15" class="ink"/>
+      <circle cx="122" cy="166" r="4" fill="#fff"/><circle cx="186" cy="166" r="4" fill="#fff"/>
+      <ellipse cx="92" cy="198" rx="13" ry="7" fill="#FF8FA0" opacity=".6"/>
+      <ellipse cx="208" cy="198" rx="13" ry="7" fill="#FF8FA0" opacity=".6"/>
+      <path d="M128 205 Q150 208 172 205 Q168 232 150 232 Q132 232 128 205 Z" fill="#5A1F2A" class="line"/>
+      <ellipse cx="150" cy="223" rx="11" ry="6" fill="#FF8FA0"/>
+    </g>
+  </g>
+
+  <!-- маска: кепка + приклеенные усы (один конец отклеился) -->
+  <g id="mask-cap" class="mask">
+    <path d="M98 130 C98 80 202 80 202 130 Q150 114 98 130 Z" fill="#4A6CF7" class="line"/>
+    <path d="M150 126 Q214 114 232 134 Q196 142 150 136 Z" fill="#3B56C9" class="line"/>
+    <circle cx="150" cy="84" r="5" fill="#3B56C9" class="line"/>
+    <path d="M116 206 Q132 192 150 204 Q168 192 182 206 Q168 216 150 210 Q132 216 116 206 Z" class="ink"/>
+    <g transform="translate(182 206) rotate(-38)"><path d="M0 0 Q14 -8 24 2 Q12 8 0 0 Z" class="ink"/></g>
+  </g>
+  <!-- маска: капюшон и тёмные очки (уши торчат поверх) -->
+  <g id="mask-hood" class="mask">
+    <path fill-rule="evenodd" d="M58 236 C40 50 260 50 242 236 L232 236 C234 128 66 128 68 236 Z" fill="#5D6385" class="line"/>
+    <rect x="98" y="158" width="38" height="28" rx="10" fill="#1E1B2E" class="line"/>
+    <rect x="164" y="158" width="38" height="28" rx="10" fill="#1E1B2E" class="line"/>
+    <path d="M136 168 H164" class="line" fill="none"/>
+    <path d="M106 166 l8 -4 M172 166 l8 -4" stroke="#fff" stroke-width="3" stroke-linecap="round" opacity=".7"/>
+  </g>
+
+  <!-- головные трофеи -->
+  <g id="acc-hat" class="acc" transform="rotate(-8 150 106)">
+    <rect x="118" y="46" width="64" height="60" rx="6" class="ink line"/>
+    <rect x="118" y="88" width="64" height="12" fill="#FF6B5A" class="line"/>
+    <ellipse cx="150" cy="106" rx="46" ry="9" class="ink line"/>
+  </g>
+  <g id="acc-glasses" class="acc">
+    <circle cx="118" cy="168" r="19" fill="#fff" class="line" style="stroke-width:4"/>
+    <circle cx="182" cy="168" r="19" fill="#fff" class="line" style="stroke-width:4"/>
+    <circle cx="124" cy="174" r="8" class="ink"/><circle cx="176" cy="172" r="8" class="ink"/>
+    <path d="M137 168 H163" class="line" fill="none" style="stroke-width:4"/>
+  </g>
+  <g id="acc-nose" class="acc">
+    <circle cx="150" cy="193" r="13" fill="#FF3B3B" class="line"/>
+    <circle cx="145" cy="188" r="4" fill="#fff" opacity=".8"/>
+  </g>
+  <g id="acc-mustache" class="acc">
+    <path d="M100 210 Q120 188 150 204 Q180 188 200 210 Q182 218 168 208 Q150 220 132 208 Q118 218 100 210 Z" class="ink line"/>
+  </g>
+</g>
+
+<!-- руки (поверх головы, чтобы ладони могли быть у щёк) -->
+<g transform="translate(112 246)"><g id="arm-l" class="arm">
+  <rect x="-10" y="-6" width="20" height="58" rx="10" fill="url(#gOrange)" class="line"/>
+  <rect x="-10" y="36" width="20" height="22" rx="10" fill="#4A2630" class="line"/>
+</g></g>
+<g transform="translate(188 246)"><g id="arm-r" class="arm">
+  <rect x="-10" y="-6" width="20" height="58" rx="10" fill="url(#gOrange)" class="line"/>
+  <rect x="-10" y="36" width="20" height="22" rx="10" fill="#4A2630" class="line"/>
+</g></g>
+
+<!-- мороженое (поза «шалит»), в лапе правой руки -->
+<g id="icecream">
+  <path d="M222 206 L252 206 L237 240 Z" fill="#E8B26A" class="line"/>
+  <path d="M228 214 L246 214 M232 224 L242 224" stroke="#C48A45" stroke-width="2" stroke-linecap="round"/>
+  <circle cx="237" cy="194" r="20" fill="#FF9EC1" class="line"/>
+  <circle cx="244" cy="186" r="4" fill="#fff" opacity=".7"/>
+</g>
+
+<!-- бабочка-трофей на шее -->
+<g id="acc-bow" class="acc">
+  <g transform="translate(150 252)">
+    <use href="#bowTie" fill="#FFD84D" class="line"/>
+    <circle r="6" fill="#E8B500" class="line"/>
+    <circle cx="-14" cy="0" r="2.5" fill="#FF6B5A"/><circle cx="14" cy="0" r="2.5" fill="#FF6B5A"/>
+  </g>
+</g>
+</svg>

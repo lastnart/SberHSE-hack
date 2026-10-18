@@ -3,11 +3,22 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
-<meta name="theme-color" content="#1B1F4B">
-<title>Игра</title>
+<meta name="theme-color" content="#F2F2F2">
+<title>Лис-привратник</title>
 <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
+<div id="rot">
+<svg class="gdefs" width="0" height="0" aria-hidden="true"><defs><g id="leaf">
+  <rect width="220" height="674" fill="#FDD363"/>
+  <rect x="32" y="41" width="150.8" height="580.5" rx="16" fill="#EDB047"/>
+  <rect x="32" y="615.5" width="150.8" height="5.7" rx="2.8" fill="#FFDF83"/>
+  <rect x="40.7" y="55.5" width="134" height="560.3" rx="12" fill="#F9C558"/>
+  <rect x="137.1" y="312" width="76.9" height="92" rx="38" fill="#FDDF7F"/>
+  <rect x="154.2" y="340" width="42.7" height="44.9" rx="21" fill="#F7C357"/>
+  <rect x="160.4" y="340.1" width="33.5" height="18.4" rx="9" fill="#E0A23B"/>
+  <rect x="174.1" y="347.5" width="9.2" height="37.4" rx="4.6" fill="#E0A23B"/>
+</g></defs></svg>
 <div id="app">
 
   <!-- Заставка -->
@@ -17,42 +28,73 @@
       <button class="icon-btn" id="btn-sound" aria-label="Звук">🔇</button>
     </div>
     <div class="center">
-      <div class="hero" id="intro-emoji">🦊</div>
-      <h1 id="intro-title">Название игры</h1>
-      <p class="lead" id="intro-goal">Здесь цель обучения одной фразой.</p>
+      <div class="intro-fox" id="intro-fox"></div>
+      <h1 id="intro-title">Лис-привратник</h1>
+      <p class="lead" id="intro-goal"></p>
     </div>
     <div class="bottom">
       <button class="btn big" id="btn-play">Играть</button>
     </div>
   </section>
 
-  <!-- Игра (шаблон: свайп-карточки) -->
-  <section class="screen" id="screen-play">
+  <!-- Легенда: что происходит (печатающийся текст) -->
+  <section class="screen" id="screen-legend">
     <div class="topbar">
-      <button class="icon-btn" id="btn-close-play" aria-label="Выйти">✕</button>
-      <div class="dots" id="dots"></div>
-      <button class="icon-btn" id="btn-sound-play" aria-label="Звук">🔇</button>
+      <span></span>
+      <button class="btn ghost small" id="legend-skip">Пропустить</button>
     </div>
-    <div class="stage">
-      <div class="side-hint left" id="hint-left">Нет</div>
-      <div class="side-hint right" id="hint-right">Да</div>
-      <div class="card" id="card">
-        <div class="card-emoji" id="card-emoji"></div>
-        <div class="card-text" id="card-text"></div>
+    <div class="center">
+      <div class="intro-fox legend-fox" id="legend-fox"></div>
+      <div class="legend-bubble" id="legend-bubble"><span id="legend-text"></span></div>
+    </div>
+    <div class="bottom">
+      <button class="btn big invisible" id="legend-next">Дальше</button>
+    </div>
+  </section>
+
+  <!-- Игра -->
+  <section class="screen" id="screen-play">
+    <div class="scene" id="scene">
+      <div class="topbar">
+        <button class="icon-btn" id="btn-close-play" aria-label="Выйти">✕</button>
+        <div class="dots" id="dots"></div>
+        <button class="icon-btn" id="btn-book" aria-label="Книга стража">📖</button>
+        <button class="icon-btn" id="btn-sound-play" aria-label="Звук">🔇</button>
       </div>
+      <div class="door"><div class="slot" id="slot"></div></div>
+      <div class="sill" id="sill"><svg viewBox="0 0 32 40" width="30" height="38" fill="none" stroke="#16131F" stroke-width="2.2" stroke-linejoin="round"><path d="M8 20h16l-8 18z" fill="#F2B866"/><path d="M12 24l3 5M18 24l-2 6M21 24l-3 8" stroke-width="1.2"/><circle cx="16" cy="12" r="8" fill="#FFB3D1"/><circle cx="16" cy="12" r="8" fill="none"/><path d="M11 9q2-3 5-3" stroke="#fff" stroke-width="2" stroke-linecap="round"/></svg></div>
+      <div class="foxline" id="foxline" hidden></div>
+      <div class="gate l"><svg viewBox="0 0 220 674" preserveAspectRatio="xMidYMid slice"><use href="#leaf"/></svg></div>
+      <div class="gate r"><svg viewBox="0 0 220 674" preserveAspectRatio="xMidYMid slice"><use href="#leaf"/></svg></div>
+      <div class="gpost"></div>
     </div>
-    <div class="actions">
-      <button class="btn coral" id="btn-no">Нет</button>
-      <button class="btn mint" id="btn-yes">Да</button>
+
+    <div class="panel">
+      <div class="stickers" id="stickers"></div>
+      <div class="stage">
+        <div class="card" id="card">
+          <div class="chip" id="plate">Гость</div>
+          <div class="phrases" id="phrases"></div>
+          <div class="stamp" id="stamp"></div>
+        </div>
+      </div>
+      <div class="tip" id="tip"></div>
+      <div class="zones" id="zones">
+        <button class="zone no" id="btn-no">Показать взрослому</button>
+        <button class="zone yes" id="btn-yes">Пускаю</button>
+        <button class="btn next" id="btn-next">Дальше</button>
+      </div>
     </div>
   </section>
 
   <!-- Итог -->
   <section class="screen" id="screen-result">
     <div class="center">
+      <div class="result-fox" id="result-fox"></div>
       <div class="stars" id="result-stars"></div>
       <h1 id="result-rank">Готово!</h1>
       <p class="lead" id="result-text"></p>
+      <div class="stickers result" id="result-stickers"></div>
     </div>
     <div class="bottom col">
       <button class="btn big" id="btn-share">Поделиться</button>
@@ -61,6 +103,19 @@
     </div>
   </section>
 
+</div>
+
+<!-- Книга стража -->
+<div id="book" class="modal" hidden>
+  <div class="sheet book">
+    <h2 id="book-title">Книга стража</h2>
+    <p class="book-sub" id="book-sub" hidden></p>
+    <h3 class="book-head">Правила</h3>
+    <div class="book-list" id="book-rules"></div>
+    <h3 class="book-head" id="book-res-head" hidden>Свои: их можно пускать</h3>
+    <div class="res-grid" id="book-residents"></div>
+    <button class="btn" id="book-btn">Понятно</button>
+  </div>
 </div>
 
 <!-- Окно мягкой обратной связи (объяснение ошибки) -->
@@ -75,8 +130,10 @@
 
 <div id="toast" class="toast" hidden></div>
 <canvas id="fx"></canvas>
+</div><!-- /#rot -->
 
 <script src="js/core.js"></script>
+<script src="js/orient.js"></script>
 <script src="js/bridge.js"></script>
 <script src="js/audio.js"></script>
 <script src="js/content.js"></script>
@@ -86,7 +143,11 @@
 <script src="js/ui.js"></script>
 <script src="js/share.js"></script>
 <script src="js/screens.js"></script>
+<script src="js/art.js"></script>
+<script src="js/fox.js"></script>
 <script src="js/fallback.js"></script>
+<script src="js/book.js"></script>
+<script src="js/legend.js"></script>
 <script src="js/game.js"></script>
 <script src="js/main.js"></script>
 </body>
