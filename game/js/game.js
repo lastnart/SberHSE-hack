@@ -262,6 +262,7 @@
     swiper.reset();
     swiper.enable(true);
     S.locked = false;
+    fitScene(); // панель стала другой высоты, фон подгоняем под новую сцену
   }
 
   /* ---------- ход игры ---------- */
@@ -490,6 +491,9 @@
   function bind() {
     if (G.art.scene) els.scene.insertAdjacentHTML('afterbegin', G.art.scene); // фон за лисом
     window.addEventListener('resize', fitScene);
+    // Высота сцены меняется, когда меняется нижняя панель (текст карточки, подсказка), поэтому фон пересчитываем
+    // при любом изменении размера сцены, а не только при смене гостя.
+    if (window.ResizeObserver) new ResizeObserver(fitScene).observe(els.scene);
     window.addEventListener('orientationchange', function () { setTimeout(fitScene, 80); });
     swiper = G.input.swipeCard(els.card, {
       onMove: function (dx) {
