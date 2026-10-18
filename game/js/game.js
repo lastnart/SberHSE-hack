@@ -218,21 +218,7 @@
     });
   }
 
-  // Сцена (холст 440×440 после кадрирования) подгоняется под высоту окна игры: по высоте, но не уже 84% ширины,
-  // боковые зазоры закрывают открытые створки. Замок и луг всегда целиком, лис стоит внизу на тропинке.
-  function fitScene() {
-    var bg = els.scene.querySelector('svg.bg');
-    if (!bg) return;
-    var w = els.scene.offsetWidth, h = els.scene.offsetHeight; // без учёта поворота интерфейса
-    if (!w || !h) return;
-    var size = Math.round(Math.max(h, w * 0.84));
-    bg.style.width = size + 'px';
-    bg.style.height = size + 'px';
-    bg.style.left = Math.round((w - size) / 2) + 'px';
-  }
-
   function renderGuest() {
-    fitScene();
     var g = S.current;
     S.guestFound = {};
     els.plate.textContent = g.name;
@@ -262,7 +248,6 @@
     swiper.reset();
     swiper.enable(true);
     S.locked = false;
-    fitScene(); // панель стала другой высоты, фон подгоняем под новую сцену
   }
 
   /* ---------- ход игры ---------- */
@@ -489,12 +474,7 @@
   /* ---------- экраны ---------- */
 
   function bind() {
-    if (G.art.scene) els.scene.insertAdjacentHTML('afterbegin', G.art.scene); // фон за лисом
-    window.addEventListener('resize', fitScene);
-    // Высота сцены меняется, когда меняется нижняя панель (текст карточки, подсказка), поэтому фон пересчитываем
-    // при любом изменении размера сцены, а не только при смене гостя.
-    if (window.ResizeObserver) new ResizeObserver(fitScene).observe(els.scene);
-    window.addEventListener('orientationchange', function () { setTimeout(fitScene, 80); });
+    if (G.art.scene) G.$('#screen-play').insertAdjacentHTML('afterbegin', G.art.scene); // фон за сценой, привязан к экрану
     swiper = G.input.swipeCard(els.card, {
       onMove: function (dx) {
         els.btnYes.classList.toggle('hot', dx > 40);
@@ -518,7 +498,6 @@
       S = buildRun(G.content.data);
       stickerRow(els.stickers, S.found);
       renderDots();
-      fitScene();
       startWave(0);
     }
   });
