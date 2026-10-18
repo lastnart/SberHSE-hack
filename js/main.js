@@ -48,9 +48,9 @@
     var c = G.content.data;
     var svg = G.fox.mount(G.$('#intro-fox'), { pose: 'default' });
     svg.classList.add('alive');
-    G.$('#intro-title').textContent = c.title || 'Лис-привратник';
+    G.$('#intro-title').textContent = c.title || 'Поймай Лиса';
     G.$('#intro-goal').textContent = c.goal || '';
-    document.title = c.title || 'Лис-привратник';
+    document.title = c.title || 'Поймай Лиса';
     G.screens.go('intro');
   }
 
